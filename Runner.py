@@ -2,8 +2,8 @@
 # @Author: Eddie Ruano
 # @Date:   2017-06-14 12:51:23
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-14 12:56:06
-import JSON
+# @Last Modified time: 2017-06-14 13:01:20
+import json
 import datetime
 import time
 
