@@ -2,7 +2,7 @@
 # @Author: Eddie Ruano
 # @Date:   2017-05-01 05:14:54
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-14 13:19:33
+# @Last Modified time: 2017-06-14 13:21:43
 # 
 """
     MissionControl.py is a debugging tool for DESI_Sentinel
@@ -69,10 +69,10 @@ def main():
     try:
         print("Listening")
         #Wait for the Start Command
+        print("Waiting for Start")
         while not Sentinel.StartDetect:
             Sentinel.getStateKnob(DESI)
             Sentinel.setStateKnob()
-            print("Off")
         #Wait until the correct Knob State Happens
         print("Waiting for knob")
         print(Sentinel.StateKnob)
