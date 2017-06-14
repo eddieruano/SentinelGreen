@@ -2,7 +2,7 @@
 # @Author: Eddie Ruano
 # @Date:   2017-05-01 05:14:54
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-14 09:43:43
+# @Last Modified time: 2017-06-14 12:56:50
 # 
 """
     MissionControl.py is a debugging tool for DESI_Sentinel
@@ -24,6 +24,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import DESIConfig as DESIConfig
 import drivers.MPR121 as MPR121
 import drivers.VoyagerHCSR04 as VoyagerHCSR04
+import Runner as Runner
 #import trigger.snowboydetect as snowboydetect
 ############################ INITIALIZE CLASSES ###############################
 DESI = DESIConfig.DESI()
@@ -31,6 +32,7 @@ Voyager1 = VoyagerHCSR04.Voyager("Voyager1", DESI.PROX1_TRIG, DESI.PROX1_ECHO)
 Voyager2 = VoyagerHCSR04.Voyager("Voyager2", DESI.PROX2_TRIG, DESI.PROX2_ECHO)
 TouchSense = MPR121.MPR121()
 Sentinel = Sentinel.Sentinel()
+Runner = Runner("Runner1", "~/Logs/Status.txt")
 ################################## PATHS ######################################
 def main():
     # Variables/Flags
