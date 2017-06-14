@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "Starting"
-cd ~/Desktop/Sentinel
+cd ~/Desktop/GreenSentinel
 git pull
 echo "Pulling"
-sudo python3 ~/Desktop/SentinelGreen/MissionControl.py
+[ -f on.dat ] || sudo python3 MissionControl.py
