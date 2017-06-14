@@ -1,0 +1,1046 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"Tr",
+				"True"
+			],
+			[
+				"dist",
+				"distAverage"
+			],
+			[
+				"dis",
+				"distAverage"
+			],
+			[
+				"pro",
+				"proxError"
+			],
+			[
+				"_",
+				"_CONTACT_RIGHT"
+			],
+			[
+				"sta",
+				"StartTime"
+			],
+			[
+				"Stop",
+				"StopTime"
+			],
+			[
+				"v",
+				"Voyager2"
+			],
+			[
+				"displa",
+				"displayBar"
+			],
+			[
+				"disp",
+				"displayRefresh"
+			],
+			[
+				"update",
+				"updateV1"
+			],
+			[
+				"Vo",
+				"VoyagerHCSR04"
+			],
+			[
+				"displ",
+				"displayHeaderBar"
+			],
+			[
+				"h",
+				"HotwordInterrupt"
+			],
+			[
+				"Hot",
+				"HotwordInterrupt"
+			],
+			[
+				"Voy",
+				"Voyager1"
+			],
+			[
+				"se",
+				"setup"
+			],
+			[
+				"ini",
+				"initProximity"
+			],
+			[
+				"PROX",
+				"PROX1_TRIG"
+			],
+			[
+				"IN_SP",
+				"IN_SPEED1"
+			],
+			[
+				"IN",
+				"IN_STOP"
+			],
+			[
+				"VOy",
+				"Voyager2"
+			],
+			[
+				"senso",
+				"sensorV2"
+			],
+			[
+				"sensor",
+				"sensorV1"
+			],
+			[
+				"Tri",
+				"Trig_V2"
+			],
+			[
+				"Ec",
+				"Echo_V1"
+			],
+			[
+				"Ech",
+				"Echo_V2"
+			],
+			[
+				"E",
+				"Echo_V2"
+			],
+			[
+				"T",
+				"Trig_V2"
+			],
+			[
+				"perform",
+				"performS0"
+			],
+			[
+				"MA",
+				"MAIN_CONTACT"
+			],
+			[
+				"G",
+				"G_INFASTEST"
+			],
+			[
+				"G_INFa",
+				"G_INFASTER"
+			],
+			[
+				"G_",
+				"G_INFAST"
+			],
+			[
+				"GR_",
+				"GR_ENTER"
+			],
+			[
+				"init",
+				"initializeRelay"
+			],
+			[
+				"G_IN",
+				"G_INSTART	statement"
+			],
+			[
+				"triger",
+				"trigger	param"
+			],
+			[
+				"GP",
+				"GPIOTrigger"
+			],
+			[
+				"pr",
+				"proxInitSensor	function"
+			],
+			[
+				"GPIO",
+				"GPIO_V1_ECHO"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"contents": "#!/usr/bin/python\n# @Author: Eddie Ruano\n# @Date:   2017-05-01 05:14:54\n# @Last Modified by:   Eddie Ruano\n# @Last Modified time: 2017-06-02 01:03:26\n# \n\"\"\"\n    MissionControl.py is a debugging tool for DESI_Sentinel\n\"\"\"\n### IMPORT MODULES ###\nimport sys\nimport os.path\nimport signal\nimport time\nimport curses\nimport logging\n# Customs Mods #\nimport Adafruit_MPR121.MPR121 as MPR121\nimport RPi.GPIO as GPIO\n# Local Modules #\n### Set path ###\nsys.path.append(os.path.join(os.path.dirname(__file__), '..'))\nimport drivers.VoyagerHCSR04 as VoyagerHCSR04\nimport drivers.HUD as HUD\nimport drivers.DESIConfig as DESIConfig\n\n### Configure Logger ###\nlogging.basicConfig()\nlogger = logging.getLogger(\"Houston\")\nlogger.setLevel(logging.INFO)\n### Global Variables ###\nDESI = DESIConfig.DESI()\nVoyager1 = VoyagerHCSR04.Voyager(\"Voyager1\", DESI.PROX1_TRIG, DESI.PROX1_ECHO)\nVoyager2 = VoyagerHCSR04.Voyager(\"Voyager2\", DESI.PROX2_TRIG, DESI.PROX2_ECHO)\nTouchSense = MPR121.MPR121()\nHUD = HUD.HUD()\n\ndef main():\n    # Variables\n    proxError = 0.0\n    distv1 = 0.0\n    distv2 = 0.0\n    slack = 0.0\n    # Initialize DESI States\n    DESI.initDESI()\n    # Initialize Voyager Proximity Sensors\n    DESI.initProximity(Voyager1, Voyager2)\n    if not TouchSense.begin():  # Init TouchSense Capacitive Sensor Array\n        logger.info(\"TouchSense Failure.\")\n                                  # Initialize comms with MPR121 using default I2C bus of device, and # default I2C address (0x5A). \n        sys.exit(1)\n\n    try:\n        while True:\n            # Query for the proximity of Megan #\n            distv1 = Voyager1.get_distance()\n            distv2 = Voyager2.get_distance()\n            distAverage = distv1 + distv2 / 2\n\n            proxError = distv1 - distv2\n\n            state = checkState(distAverage)\n\n            if state != \"Green\":\n                if state == \"Red\":\n                    DESI.send(\"Pause\")\n                elif state == \"Yellow\":\n                    DESI.send(\"\")\n\n                slack = 30 - distAverage\n                redux = ((distAverage - 10) / 2) * 10\n                redux = int(redux)\n\n            renderDisplay(self, STATE, SPEED, distv1, distv2, CONTACT_M, CONTACT_L, CONTACT_R, CONTACT_T, \"Active\"):\n            time.sleep(0.5)\n    # Catch Ctrl+C\n    except KeyboardInterrupt:\n        GPIO.cleanup()\n        print(\"Shutdown Mission.\")\n        #Detector.terminate()\n        \n### END OF MAIN ###\n\"\"\"Helper Functions\"\"\"\ndef activateAlexa():\n    GPIO.output(DESI.OUT_ALEXA, GPIO.LOW)\n    time.sleep(2)\n    GPIO.output(DESI.OUT_ALEXA, GPIO.HIGH)\n#def signal_handler(signal, frame):\n#    global HotwordInterrupt\n#    HotwordInterrupt = True\n#def interrupt_callback():\n#    global HotwordInterrupt\n#    return HotwordInterrupt\n### MAIN CALL ###\nif __name__ == \"__main__\":\n    main()",
+			"file": "MissionControl.py",
+			"file_size": 2722,
+			"file_write_time": 131408642060000000,
+			"settings":
+			{
+				"buffer_size": 2796,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "#!/usr/bin/python\n# @Author: Eddie Ruano\n# @Date:   2017-05-01 05:14:54\n# @Last Modified by:   Eddie Ruano\n# @Last Modified time: 2017-06-02 01:43:55\n\n\"\"\"\nBasic DESI Driver for Prototyping\n\"\"\"\nimport sys\nimport os.path\nimport time\n# Customs Mods #\nimport Adafruit_MPR121.MPR121 as MPR121\nimport RPi.GPIO as GPIO\n# Local Modules #\n### Set path ###\nsys.path.append(os.path.join(os.path.dirname(__file__), '..'))\nimport drivers.VoyagerHCSR04 as VoyagerHCSR04\n\n# #Buttons# #\nG_INSTART = 9\nG_INPAUSE= 10\nG_INSTOP = 11\nG_INSLOW = 5\nG_INMED = 6\nG_INFAST = 13\nG_INFASTER = 19\nG_INFASTEST = 26\n# #Relays# #\nGR_START = 14\nGR_PAUSE = 18\nGR_OFF = 15\nGR_ENTER = 23\n# #Keypad Relays# #\nGR_00 = 24\nGR_01 = 25\nGR_02 = 8\nGR_03 = 7\nGR_04 = 12\nGR_05 = 16\nGR_ALEXA = 21\n# #BOUNCE IN MS# #\nbounceTime = 800\n# #STATE# #\nstate = \"\"\n### MAIN PROGRAM START ###\ndef main():\n   GPIO.setmode(GPIO.BCM)\n   initializeButtons(G_INSTART, G_INPAUSE)\n   initializeKnob(G_INSTOP, G_INSLOW, G_INMED, G_INFAST, G_INFASTER, G_INFASTEST)\n   initializeRelay(GR_START, GR_OFF, GR_PAUSE, GR_ENTER, GR_00, GR_01, GR_02, GR_03, GR_05, GR_ALEXA) \n\n   GPIO.add_event_detect(G_INSTART, GPIO.FALLING, performStart, bounceTime)\n   GPIO.add_event_detect(G_INPAUSE, GPIO.FALLING, performStop, bounceTime)\n\n   GPIO.add_event_detect(G_INSTOP, GPIO.FALLING, performS0, bounceTime)\n   GPIO.add_event_detect(G_INSLOW, GPIO.FALLING, performS1, bounceTime)\n   GPIO.add_event_detect(G_INMED, GPIO.FALLING, performS2, bounceTime)\n   GPIO.add_event_detect(G_INFAST, GPIO.FALLING, performS3, bounceTime)\n   GPIO.add_event_detect(G_INFASTER, GPIO.FALLING, performS4, bounceTime)\n\n   activeFlag = True\n   print(\"In Main Loop:\\n\")\n   while activeFlag:\n		try:\n			if state != \"Shutdown\":\n				activeFlag = True\n			else:\n				print(\"Cleaning GPIO..\")\n				GPIO.cleanup()\n				sys.exit(1)\n		# Catch Ctrl+C\n		except KeyboardInterrupt:\n			GPIO.cleanup()\n			sys.exit(0)\n			print(\"Shutdown Mission.\")\n			#Detector.terminate()\n			#Should not get here\ndef performS0(channel):\n	global state\n	if state != \"Startup\" and state != \"Speed0\":\n	# Trigger 1 twice\n	  GPIO.output(GR_00, GPIO.LOW)\n	  time.sleep(0.1)\n	  GPIO.output(GR_00, GPIO.HIGH)\n	  time.sleep(0.1)\n	  GPIO.output(GR_00, GPIO.LOW)\n	  time.sleep(0.1)\n	  GPIO.output(GR_00, GPIO.HIGH)\n	  time.sleep(0.1)\n	  #enter\n	  GPIO.output(GR_ENTER, GPIO.LOW)\n	  time.sleep(0.1)\n	  GPIO.output(GR_ENTER, GPIO.HIGH)\n	  time.sleep(0.1)\n	  global state\n	  state = \"Speed0\"\n	  print(state)\ndef performS1(channel):\n   global state\n   if state != \"Speed1\":\n	  # Trigger 1 twice\n	  GPIO.output(GR_01, GPIO.LOW)\n	  time.sleep(0.1)\n	  GPIO.output(GR_01, GPIO.HIGH)\n	  time.sleep(0.1)\n	  GPIO.output(GR_05, GPIO.LOW)\n	  time.sleep(0.1)\n	  GPIO.output(GR_05, GPIO.HIGH)\n	  time.sleep(0.1)\n	  #enter\n	  GPIO.output(GR_ENTER, GPIO.LOW)\n	  time.sleep(0.1)\n	  GPIO.output(GR_ENTER, GPIO.HIGH)\n	  time.sleep(0.1)\n	  global state\n	  state = \"Speed1\"\n	  print(state)\ndef performS2(channel):\n   global state\n   if state != \"Speed2\":\n	  # Trigger 1 twice\n	  GPIO.output(GR_02, GPIO.LOW)\n	  time.sleep(0.1)\n	  GPIO.output(GR_02, GPIO.HIGH)\n	  time.sleep(0.1)\n	  GPIO.output(GR_05, GPIO.LOW)\n	  time.sleep(0.1)\n	  GPIO.output(GR_05, GPIO.HIGH)\n	  time.sleep(0.1)\n	  #enter\n	  GPIO.output(GR_ENTER, GPIO.LOW)\n	  time.sleep(0.1)\n	  GPIO.output(GR_ENTER, GPIO.HIGH)\n	  time.sleep(0.1)\n	  #state variable\n	  global state\n	  state = \"Speed2\"\n	  print(state)\ndef performS3(channel):\n   global state\n   if state != \"Speed3\":\n	  # Trigger 1 twice\n	  GPIO.output(GR_03, GPIO.LOW)\n	  time.sleep(0.1)\n	  GPIO.output(GR_03, GPIO.HIGH)\n	  time.sleep(0.1)\n	  GPIO.output(GR_00, GPIO.LOW)\n	  time.sleep(0.1)\n	  GPIO.output(GR_00, GPIO.HIGH)\n	  time.sleep(0.1)\n	  #enter\n	  GPIO.output(GR_ENTER, GPIO.LOW)\n	  time.sleep(0.1)\n	  GPIO.output(GR_ENTER, GPIO.HIGH)\n	  time.sleep(0.1)\n	  #state variable\n	  global state\n	  state = \"Speed3\"\n	  print(state)\ndef performS4(channel):\n   global state\n   if state != \"Speed4\":\n	  # Trigger 1 twice\n	  GPIO.output(GR_03, GPIO.LOW)\n	  time.sleep(0.1)\n	  GPIO.output(GR_03, GPIO.HIGH)\n	  time.sleep(0.1)\n	  GPIO.output(GR_05, GPIO.LOW)\n	  time.sleep(0.1)\n	  GPIO.output(GR_05, GPIO.HIGH)\n	  time.sleep(0.1)\n	  #enter\n	  GPIO.output(GR_ENTER, GPIO.LOW)\n	  time.sleep(0.1)\n	  GPIO.output(GR_ENTER, GPIO.HIGH)\n	  time.sleep(0.1)\n	  #alexa\n	  #GPIO.output(GR_ALEXA, GPIO.LOW)\n	  #time.sleep(0.2)\n	  #GPIO.output(GR_ALEXA, GPIO.HIGH)\n	  #time.sleep(0.2)\n	  global state\n	  state = \"Speed4\"\n	  print(state)\ndef performStart(channel):\n   if state == \"Startup\":\n	  print(\"start\")\n	  GPIO.output(GR_START, GPIO.LOW)\n	  time.sleep(0.1)\n	  GPIO.output(GR_START, GPIO.HIGH)\n	  time.sleep(0.1)\n	  GPIO.output(GR_ENTER, GPIO.LOW)\n	  time.sleep(0.1)\n	  GPIO.output(GR_ENTER, GPIO.HIGH)\n	  time.sleep(0.1)\n	  performS0(channel)\n   else:\n	  print(\"Already Started.\")\n\ndef performStop(channel):\n   global state\n   if state == \"Speed0\":\n	  print(\"Shutting Down.\")\n	  GPIO.output(GR_OFF, GPIO.LOW)\n	  time.sleep(0.1)\n	  GPIO.output(GR_OFF, GPIO.HIGH)\n	  time.sleep(0.1)\n	  global state\n	  state = \"Shutdown\"\n	  print(state)\n   else:\n	  print(\"Pausing...\\n\")\n	  GPIO.output(GR_PAUSE, GPIO.LOW)\n	  time.sleep(0.1)\n	  GPIO.output(GR_PAUSE, GPIO.HIGH)\n	  time.sleep(0.1)\n	  state = \"Paused\"\n	  print(state)\ndef initializeButtons(start, pause):\n   GPIO.setup(start, GPIO.IN, pull_up_down=GPIO.PUD_UP)\n   GPIO.setup(pause, GPIO.IN, pull_up_down=GPIO.PUD_UP)\n   print(\"Buttons Complete.\")\n   print(\"Start & Pause Set.\\n\")\ndef initializeKnob(speed0, speed1, speed2, speed3, speed4, speed5):\n   GPIO.setup(speed0, GPIO.IN, pull_up_down=GPIO.PUD_UP)\n   GPIO.setup(speed1, GPIO.IN, pull_up_down=GPIO.PUD_UP)\n   GPIO.setup(speed2, GPIO.IN, pull_up_down=GPIO.PUD_UP)\n   GPIO.setup(speed3, GPIO.IN, pull_up_down=GPIO.PUD_UP)\n   GPIO.setup(speed4, GPIO.IN, pull_up_down=GPIO.PUD_UP)\n   GPIO.setup(speed5, GPIO.IN, pull_up_down=GPIO.PUD_UP)\n   print(\"Knob Complete.\\n\")\ndef initializeRelay(start, off, pause, enter, k0, k1, k2, k3, k5, alexa):\n   GPIO.setup(start, GPIO.OUT)\n   GPIO.setup(off, GPIO.OUT)\n   GPIO.setup(pause, GPIO.OUT)\n   GPIO.setup(enter, GPIO.OUT)\n   GPIO.setup(k0, GPIO.OUT)\n   GPIO.setup(k1, GPIO.OUT)\n   GPIO.setup(k2, GPIO.OUT)\n   GPIO.setup(k3, GPIO.OUT)\n   GPIO.setup(k5, GPIO.OUT)\n   GPIO.setup(alexa, GPIO.OUT)\n   GPIO.output(start, GPIO.HIGH)\n   GPIO.output(off, GPIO.HIGH)\n   GPIO.output(pause, GPIO.HIGH)\n   GPIO.output(enter, GPIO.HIGH)\n   GPIO.output(k0, GPIO.HIGH)\n   GPIO.output(k1, GPIO.HIGH)\n   GPIO.output(k2, GPIO.HIGH)\n   GPIO.output(k3, GPIO.HIGH)\n   GPIO.output(k5, GPIO.HIGH)\n   GPIO.output(alexa, GPIO.HIGH)\n   print(\"Relays Complete.\\n\")\n###MAIN CALL ###\nif __name__ == \"__main__\":\n   main()\n",
+			"file": "DESI_DRV1.py",
+			"file_size": 7153,
+			"file_write_time": 131408666350000000,
+			"settings":
+			{
+				"buffer_size": 6664,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "Dash.py",
+			"settings":
+			{
+				"buffer_size": 875,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/Users/eddieruano/Desktop/KiteMail/KiteMail-Senior-Project-/Podfile",
+			"settings":
+			{
+				"buffer_size": 410,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "#!/usr/bin/env python\n\"\"\"RunDMC_Module.py, by Eddie Ruano, January 2017\nBasic Debugger and Tester tool for development of DESI System\n\"\"\"\n\n### IMPORT MODULES ###\nimport os\nimport time\nimport curses\nimport RPi.GPIO as GPIO\n\n### MAIN PROGRAM START ###\ndef main():\n    # Begin Sensor Read Code Debugger #\n    #Set Mode on GPIO Pins\n    GPIO.setmode(GPIO.BCM)\n    # Set up Start/Stop Button functionality\n    GPIO_START = 9\n    GPIO_STOP = 10\n    initStopLight(GPIO_START, GPIO_STOP)\n    # Set up Relay Nodes\n    POWER_RELAY = 14\n    UP_RELAY = 7\n    DOWN_RELAY = 12\n    OFF_RELAY = 15\n    initRelays(POWER_RELAY, UP_RELAY, DOWN_RELAY, OFF_RELAY)\n    # Speed Levels\n    level1 = 10\n    level2 = 30\n    level3 = 40\n    # Set Up Voyager 1 & 2 Proximity Sensors\n    GPIOV1_ECHO = 4\n    GPIOV1_TRIG = 17\n    GPIOV2_ECHO = 27\n    GPIOV2_TRIG = 22\n    #set GPIO direction (IN / OUT)\n    GPIO.setup(GPIOV1_TRIG, GPIO.OUT)\n    GPIO.setup(GPIOV1_ECHO, GPIO.IN)\n    GPIO.setup(GPIOV2_TRIG, GPIO.OUT)\n    GPIO.setup(GPIOV2_ECHO, GPIO.IN)\n    # Create Display Window CURSES\n    stdscr = curses.initscr()\n    stdscr.border(0)\n    curses.noecho()\n    renderDisplay(stdscr)\n    #### Begin Sensor Flow ####\n    activeFlag = True\n    count = 0\n    status = \"Green\"\n    stdscr.nodelay(True)\n    while activeFlag == True:\n        # Call for the distance\n        try: \n            inchar = stdscr.getkey()\n            if inchar == \"q\":\n                activeFlag = False\n                break\n            elif inchar == \"s\":\n                powerStart(OFF_RELAY)\n            elif inchar == \"p\":\n                powerStart(POWER_RELAY)\n            elif inchar == \"u\":\n                increaseSpeed(UP_RELAY, level1)\n            elif inchar == \"d\":\n                decreaseSpeed(DOWN_RELAY, level1)\n        except:\n            time.sleep(0.2)\n        # Handle Start/Stop\n        if GPIO.event_detected(GPIO_START):\n           stdscr.addstr(40, 5, \"Start Detected.\")\n           powerStart(POWER_RELAY)\n        if GPIO.event_detected(GPIO_STOP):\n           stdscr.addstr(40, 5, \"Increase Detected. \")\n           increaseSpeed(UP_RELAY, level1)\n        # Handle Distance Queries\n        distV1 = queryDistance(GPIOV1_TRIG, GPIOV1_ECHO)\n        distV2 = queryDistance(GPIOV2_TRIG, GPIOV2_ECHO)\n        status = updateV1(stdscr, distV1)\n        updateV2(stdscr, distV2)\n        error = str(distV2 - distV1)\n        stdscr.addstr(13, 44, error)\n        stdscr.refresh()\n        if status == \"Red\":\n            stdscr.addstr(17, 22, \"RED ZONE TIMEOUT 10 sec.\")\n        else:\n            # Find Average Distance w/ Two Sensors\n            average = (distV1 + distV2) / 2\n            # Find the Slack Left in Position Movement\n            slack = 30 - average\n            stdscr.addstr(18, 15, \"Slack Dist: \"+str(int(slack))+\" cm \")\n            # Find by how much percent-wise the speed should be reduced\n            if status == \"Yellow\":\n                # Subtract Green Zone 10 & divvy 2 & make percent by 10\n                redux = ((average - 10) / 2) * 10\n                redux = int(redux)\n                redux_str = \"Speed Redux By: \" + str(redux) + \" %      \"\n                stdscr.addstr(16, 24, redux_str) \n            else:\n                stdscr.addstr(16, 24, \"No Speed Adjustment\")\n\n        # Positioning Status\n        printProgressBar(stdscr, average, 30, prefix = 'StartZone', suffix = 'RedZone', length = 35)\n    # End the Window\n    curses.echo()\n    curses.endwin()\n    # Closes Active GPIO Connections #\n    GPIO.cleanup()\n\n### END MAIN PROGRAM ###\n\n### BEGIN FUNCTIONS ###\ndef updateV1(screen, distance):\n    status = \"Green\"\n    update = str(distance) +  \" cm\"\n    screen.addstr(8, 8, update)\n    if distance < 17.2:\n        screen.addstr(14, 30, \"Within Green Zone\", curses.A_UNDERLINE)\n    elif distance > 17.2 and distance < 30:\n        screen.addstr(14, 30, \"Within Yellow Zone\", curses.A_UNDERLINE)\n        status = \"Yellow\"\n    else:\n        screen.addstr(14, 30, \"RED ZONE, Beginning Timeout\", curses.A_UNDERLINE)\n        status = \"Red\"\n\n    return status\ndef updateV2(screen, distance):\n    update = str(distance) + \" cm\"\n    screen.addstr(8, 43, update)\n    if distance < 17.2:\n        screen.addstr(15, 30, \"Within Green Zone\", curses.A_UNDERLINE)\n    elif distance > 17.2 and distance < 30:\n        screen.addstr(15, 30, \"Within Yellow Zone\", curses.A_UNDERLINE)\n    else:\n        screen.addstr(15, 30, \"RED ZONE, Beginning Timeout\", curses.A_UNDERLINE)\n\ndef displayHeaderBar(stdscr):\n    #Print the Greeting\n    stdscr.addstr(1, 14, \"*******  DESI Mission Control Module v1.0  *******\")\n    stdscr.addstr(2, 14, \"**************  Updated April 2017  **************\")\n\ndef renderDisplay(stdscr):\n    v_box_ht = 5\n    v_box_wt = 30\n    # Display Top Bar\n    displayHeaderBar(stdscr)\n    # Create Left Window\n    leftBox = stdscr.subwin(v_box_ht, v_box_wt, 5, 5)\n    leftBox.box()\n    # Create Right Window\n    rightBox = stdscr.subwin(v_box_ht, v_box_wt, 5, 40)\n    rightBox.box()\n    leftBox.addstr(1, 5, \"Voyager 1 Distance\")\n    rightBox.addstr(1, 5, \"Voyager 2 Distance\")\n    updateView(stdscr, leftBox)\n    updateView(stdscr, rightBox)\n    # Create MidSetion Status\n    midBox = stdscr.subwin(10, 60, 10, 10)\n    midBox.box()\n    midBox.addstr(1, 21, \"Control Status\")\n    midBox.addstr(3, 5, \"Voyager Disparity Error +/-: \")\n    midBox.addstr(4, 5, \"ProxV1 Status: \")\n    midBox.addstr(5, 5, \"ProxV2 Status: \")\n    midBox.addstr(6, 5, \"SlowDown Factor: 0x (in Green)\")\n    midBox.addstr(7, 5, \"Timeout: 0 (in Green)\")\n    updateView(stdscr, midBox)\n    # Create Touch Box\n    touchBox = stdscr.subwin(10, 60, 25, 10)\n    touchBox.box()\n    touchBox.addstr(1, 21, \"Cap Touch Status\")\n    updateView(stdscr, touchBox)\n    # Create Serial Box\n\ndef queryDistance( trigger, echo):\n    # set Trigger to HIGH\n    GPIO.output(trigger, True)\n    # set Trigger after 0.01ms to LOW\n    time.sleep(0.00001)\n    GPIO.output(trigger, False)\n    StartTime = time.time()\n    StopTime = time.time()\n    # save StartTime\n    while GPIO.input(echo) == 0:\n        StartTime = time.time()\n    # save time of arrival\n    while GPIO.input(echo) == 1:\n        StopTime = time.time()\n    # time difference between start and arrival\n    TimeElapsed = StopTime - StartTime\n    # multiply with the sonic speed (34300 cm/s)\n    # and divide by 2, because there and back\n    distance = (TimeElapsed * 34300) / 2\n    return distance\n\ndef updateView(main, box):\n    main.refresh()\n    box.refresh()\n\ndef printProgressBar (screen, iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):\n    percent = (\"{0:.\" + str(decimals) + \"f}\").format(100 * (iteration / float(total)))\n    filledLength = int(length * iteration // total)\n    bar = fill * filledLength + '-' * (length - filledLength)\n    end = \"%\\r\"\n    buf = \"%s |%s| %s %s %%\" % (prefix, bar, suffix, percent)\n    screen.addstr(22, 5, buf) \n    # Print New Line on Complete\n    if iteration == total:\n        print()\ndef initStopLight(start, stop):\n    # Set up the start input and set the pull down\n    GPIO.setup(start, GPIO.IN, pull_up_down=GPIO.PUD_UP)\n    GPIO.add_event_detect(start, GPIO.FALLING) \n    # Set up the stop input and set the pull down\n    GPIO.setup(stop, GPIO.IN, pull_up_down=GPIO.PUD_UP)\n    GPIO.add_event_detect(stop, GPIO.FALLING) \ndef initRelays(power, up, down, off):\n    GPIO.setup(power, GPIO.OUT)\n    GPIO.setup(up, GPIO.OUT)\n    GPIO.setup(down, GPIO.OUT)\n    GPIO.setup(off, GPIO.OUT)\n    # ALL LOW\n    GPIO.output(power, GPIO.HIGH)\n    GPIO.output(up, GPIO.HIGH)\n    GPIO.output(down, GPIO.HIGH)\n    GPIO.output(off, GPIO.HIGH)\ndef powerStart(GPIO_POWER):\n        GPIO.output(GPIO_POWER, GPIO.LOW)\n        time.sleep(0.1)\n        GPIO.output(GPIO_POWER, GPIO.HIGH)\n        time.sleep(0.1) \ndef increaseSpeed(GPIO_UPSPEED, level):\n    for x in range (0, level):\n        GPIO.output(GPIO_UPSPEED, GPIO.LOW)\n        time.sleep(0.1)\n        GPIO.output(GPIO_UPSPEED, GPIO.HIGH)\n        time.sleep(0.1)\ndef decreaseSpeed(GPIO_DOWNSPEED, level):\n    for x in range (0, level):\n        GPIO.output(GPIO_DOWNSPEED, GPIO.LOW)\n        time.sleep(0.1)\n        GPIO.output(GPIO_DOWNSPEED, GPIO.HIGH)\n        time.sleep(0.1)\n###MAIN CALL ###\nif __name__ == \"__main__\":\n    main()\n\n",
+			"file": "/Users/eddieruano/Desktop/DESI/RunDMC_Module.py",
+			"file_size": 8264,
+			"file_write_time": 131407769260000000,
+			"settings":
+			{
+				"buffer_size": 8260,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "\\# Copyright (c) 2014 Adafruit Industries\n# Author: Tony DiCola\n#\n# Permission is hereby granted, free of charge, to any person obtaining a copy\n# of this software and associated documentation files (the \"Software\"), to deal\n# in the Software without restriction, including without limitation the rights\n# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\n# copies of the Software, and to permit persons to whom the Software is\n# furnished to do so, subject to the following conditions:\n#\n# The above copyright notice and this permission notice shall be included in\n# all copies or substantial portions of the Software.\n#\n# THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\n# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\n# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\n# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\n# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN\n# THE SOFTWARE.\nimport time\n\n\n# Register addresses.\nMPR121_I2CADDR_DEFAULT = 0x5A\nMPR121_TOUCHSTATUS_L   = 0x00\nMPR121_TOUCHSTATUS_H   = 0x01\nMPR121_FILTDATA_0L     = 0x04\nMPR121_FILTDATA_0H     = 0x05\nMPR121_BASELINE_0      = 0x1E\nMPR121_MHDR            = 0x2B\nMPR121_NHDR            = 0x2C\nMPR121_NCLR            = 0x2D\nMPR121_FDLR            = 0x2E\nMPR121_MHDF            = 0x2F\nMPR121_NHDF            = 0x30\nMPR121_NCLF            = 0x31\nMPR121_FDLF            = 0x32\nMPR121_NHDT            = 0x33\nMPR121_NCLT            = 0x34\nMPR121_FDLT            = 0x35\nMPR121_TOUCHTH_0       = 0x41\nMPR121_RELEASETH_0     = 0x42\nMPR121_DEBOUNCE        = 0x5B\nMPR121_CONFIG1         = 0x5C\nMPR121_CONFIG2         = 0x5D\nMPR121_CHARGECURR_0    = 0x5F\nMPR121_CHARGETIME_1    = 0x6C\nMPR121_ECR             = 0x5E\nMPR121_AUTOCONFIG0     = 0x7B\nMPR121_AUTOCONFIG1     = 0x7C\nMPR121_UPLIMIT         = 0x7D\nMPR121_LOWLIMIT        = 0x7E\nMPR121_TARGETLIMIT     = 0x7F\nMPR121_GPIODIR         = 0x76\nMPR121_GPIOEN          = 0x77\nMPR121_GPIOSET         = 0x78\nMPR121_GPIOCLR         = 0x79\nMPR121_GPIOTOGGLE      = 0x7A\nMPR121_SOFTRESET       = 0x80\n\nMAX_I2C_RETRIES = 5\n\n\nclass MPR121(object):\n    \"\"\"Representation of a MPR121 capacitive touch sensor.\"\"\"\n\n    def __init__(self):\n        \"\"\"Create an instance of the MPR121 device.\"\"\"\n        # Nothing to do here since there is very little state in the class.\n        pass\n\n    def begin(self, address=MPR121_I2CADDR_DEFAULT, i2c=None, **kwargs):\n        \"\"\"Initialize communication with the MPR121. \n\n        Can specify a custom I2C address for the device using the address \n        parameter (defaults to 0x5A). Optional i2c parameter allows specifying a \n        custom I2C bus source (defaults to platform's I2C bus).\n\n        Returns True if communication with the MPR121 was established, otherwise\n        returns False.\n        \"\"\"        \n        # Assume we're using platform's default I2C bus if none is specified.\n        if i2c is None:\n            import Adafruit_GPIO.I2C as I2C\n            i2c = I2C\n            # Require repeated start conditions for I2C register reads.  Unfortunately\n            # the MPR121 is very sensitive and requires repeated starts to read all\n            # the registers.\n            I2C.require_repeated_start()\n        # Save a reference to the I2C device instance for later communication.\n        self._device = i2c.get_i2c_device(address, **kwargs)\n        return self._reset()\n\n    def _reset(self):\n        # Soft reset of device.\n        self._i2c_retry(self._device.write8, MPR121_SOFTRESET, 0x63)\n        time.sleep(0.001) # This 1ms delay here probably isn't necessary but can't hurt.\n        # Set electrode configuration to default values.\n        self._i2c_retry(self._device.write8, MPR121_ECR, 0x00)\n        # Check CDT, SFI, ESI configuration is at default values.\n        c = self._i2c_retry(self._device.readU8, MPR121_CONFIG2)\n        if c != 0x24:\n           return False\n        # Set threshold for touch and release to default values.\n        self.set_thresholds(12, 6)\n        # Configure baseline filtering control registers.\n        self._i2c_retry(self._device.write8, MPR121_MHDR, 0x01)\n        self._i2c_retry(self._device.write8, MPR121_NHDR, 0x01)\n        self._i2c_retry(self._device.write8, MPR121_NCLR, 0x0E)\n        self._i2c_retry(self._device.write8, MPR121_FDLR, 0x00)\n        self._i2c_retry(self._device.write8, MPR121_MHDF, 0x01)\n        self._i2c_retry(self._device.write8, MPR121_NHDF, 0x05)\n        self._i2c_retry(self._device.write8, MPR121_NCLF, 0x01)\n        self._i2c_retry(self._device.write8, MPR121_FDLF, 0x00)\n        self._i2c_retry(self._device.write8, MPR121_NHDT, 0x00)\n        self._i2c_retry(self._device.write8, MPR121_NCLT, 0x00)\n        self._i2c_retry(self._device.write8, MPR121_FDLT, 0x00)\n        # Set other configuration registers.\n        self._i2c_retry(self._device.write8, MPR121_DEBOUNCE, 0)\n        self._i2c_retry(self._device.write8, MPR121_CONFIG1, 0x10) # default, 16uA charge current\n        self._i2c_retry(self._device.write8, MPR121_CONFIG2, 0x20) # 0.5uS encoding, 1ms period\n        # Enable all electrodes.\n        self._i2c_retry(self._device.write8, MPR121_ECR, 0x8F) # start with first 5 bits of baseline tracking\n        # All done, everything succeeded!\n        return True\n\n    def _i2c_retry(self, func, *params):\n        # Run specified I2C request and ignore IOError 110 (timeout) up to\n        # retries times.  For some reason the Pi 2 hardware I2C appears to be\n        # flakey and randomly return timeout errors on I2C reads.  This will\n        # catch those errors, reset the MPR121, and retry.\n        count = 0\n        while True:\n            try:\n                return func(*params)\n            except IOError as ex:\n                # Re-throw anything that isn't a timeout (110) error.\n                if ex.errno != 110:\n                    raise ex\n            # Else there was a timeout, so reset the device and retry.\n            self._reset()\n            # Increase count and fail after maximum number of retries.\n            count += 1\n            if count >= MAX_I2C_RETRIES:\n                raise RuntimeError('Exceeded maximum number or retries attempting I2C communication!')\n\n    def set_thresholds(self, touch, release):\n        \"\"\"Set the touch and release threshold for all inputs to the provided\n        values.  Both touch and release should be a value between 0 to 255\n        (inclusive).\n        \"\"\"\n        assert touch >= 0 and touch <= 255, 'touch must be between 0-255 (inclusive)'\n        assert release >= 0 and release <= 255, 'release must be between 0-255 (inclusive)'\n        # Set the touch and release register value for all the inputs.\n        for i in range(12):\n            self._i2c_retry(self._device.write8, MPR121_TOUCHTH_0 + 2*i, touch)\n            self._i2c_retry(self._device.write8, MPR121_RELEASETH_0 + 2*i, release)\n\n    def filtered_data(self, pin):\n        \"\"\"Return filtered data register value for the provided pin (0-11).\n        Useful for debugging.\n        \"\"\"\n        assert pin >= 0 and pin < 12, 'pin must be between 0-11 (inclusive)'\n        return self._i2c_retry(self._device.readU16LE, MPR121_FILTDATA_0L + pin*2)\n\n    def baseline_data(self, pin):\n        \"\"\"Return baseline data register value for the provided pin (0-11).\n        Useful for debugging.\n        \"\"\"\n        assert pin >= 0 and pin < 12, 'pin must be between 0-11 (inclusive)'\n        bl = self._i2c_retry(self._device.readU8, MPR121_BASELINE_0 + pin)\n        return bl << 2\n\n    def touched(self):\n        \"\"\"Return touch state of all pins as a 12-bit value where each bit \n        represents a pin, with a value of 1 being touched and 0 not being touched.\n        \"\"\"\n        t = self._i2c_retry(self._device.readU16LE, MPR121_TOUCHSTATUS_L)\n        return t & 0x0FFF\n\n    def is_touched(self, pin):\n        \"\"\"Return True if the specified pin is being touched, otherwise returns\n        False.\n        \"\"\"\n        assert pin >= 0 and pin < 12, 'pin must be between 0-11 (inclusive)'\n        t = self.touched()\n        return (t & (1 << pin)) > 0\n",
+			"file": "Adafruit_Python_MPR121/Adafruit_MPR121/MPR121.py",
+			"file_size": 8262,
+			"file_write_time": 131408165190000000,
+			"settings":
+			{
+				"buffer_size": 8263,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "drivers/HUD.py",
+			"settings":
+			{
+				"buffer_size": 4327,
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+		[
+			[
+				[
+					"Packages/Python/Python.sublime-build",
+					""
+				],
+				[
+					"Packages/Python/Python.sublime-build",
+					"Syntax Check"
+				]
+			],
+			[
+				"Packages/Python/Python.sublime-build",
+				""
+			]
+		]
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 368.0,
+		"last_filter": "Package Control: ",
+		"selected_items":
+		[
+			[
+				"Package Control: ",
+				"Package Control: Install Package"
+			],
+			[
+				"pac",
+				"Package Control: Disable Package"
+			],
+			[
+				"ins",
+				"Package Control: Install Package"
+			],
+			[
+				"git",
+				"Package Control: Install Package"
+			],
+			[
+				"packa",
+				"Package Control: Disable Package"
+			]
+		],
+		"width": 597.0
+	},
+	"console":
+	{
+		"height": 119.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/Users/eddieruano/Desktop/Sentinel",
+		"/Users/eddieruano/Desktop/Sentinel/Adafruit_Python_MPR121",
+		"/Users/eddieruano/Desktop/Sentinel/Adafruit_Python_MPR121/Adafruit_MPR121",
+		"/Users/eddieruano/Desktop/Sentinel/Adafruit_Python_MPR121/examples",
+		"/Users/eddieruano/Desktop/Sentinel/snowboy",
+		"/Users/eddieruano/Desktop/Sentinel/snowboy/examples",
+		"/Users/eddieruano/Desktop/Sentinel/snowboy/examples/C",
+		"/Users/eddieruano/Desktop/Sentinel/snowboy/examples/Python3",
+		"/Users/eddieruano/Desktop/DESI"
+	],
+	"file_history":
+	[
+		"/Users/eddieruano/Desktop/KiteMail/KiteMail-Senior-Project-/Pods/AlamofireImage/Source/AlamofireImage.h",
+		"/Users/eddieruano/Desktop/KiteMail/KiteMail-Senior-Project-/Pods/NYTPhotoViewer/Pod/Classes/ios/NYTPhotoViewer.h",
+		"/Users/eddieruano/Desktop/KiteMail/KiteMail-Senior-Project-/Podfile.lock",
+		"/Users/eddieruano/Desktop/KiteMail/KiteMail-Senior-Project-/Podfile",
+		"/Users/eddieruano/Desktop/Sentinel/send.sh",
+		"/Users/eddieruano/Desktop/DESI/DESI_DRV1.py",
+		"/Users/eddieruano/Desktop/Sentinel/Sentinel.py",
+		"/Users/eddieruano/Desktop/Sentinel/drivers/snowboydecoder.py",
+		"/Users/eddieruano/Desktop/Sentinel/drivers/DESIConfig.py",
+		"/Users/eddieruano/Desktop/Sentinel/Adafruit_Python_MPR121/examples/simpletest.py",
+		"/Users/eddieruano/Desktop/Sentinel/drivers/VoyagerHCSR04.py",
+		"/Users/eddieruano/Desktop/DESI/prox.py",
+		"/Users/eddieruano/Desktop/Sentinel/Sentinel",
+		"/Users/eddieruano/Desktop/DESI/RunDMC_Module.py",
+		"/Users/eddieruano/Desktop/Sentinel/MissionControl.py",
+		"/Users/eddieruano/Desktop/Sentinel/resources/snowboy/snowboydecoder.py",
+		"/Users/eddieruano/Desktop/DESI/demo.py",
+		"/Users/eddieruano/Desktop/Sentinel/resources/snowboy/snowboydetect.py",
+		"/Users/eddieruano/Desktop/Sentinel/resources/snowboy/__init__.py",
+		"/Users/eddieruano/Desktop/DESI/rpi-arm-raspbian-8.0-1.2.0 2/README.md",
+		"/Users/eddieruano/Desktop/Adafruit_Python_MPR121/Adafruit_MPR121/__init__.py",
+		"/Users/eddieruano/Desktop/Sentinel/DESIConfig.py",
+		"/Users/eddieruano/Desktop/Sentinel/VoyagerHCSR04.py",
+		"/Users/eddieruano/Desktop/Sentinel/__init__.py",
+		"/Users/eddieruano/Desktop/DESI/testSnow.py",
+		"/Users/eddieruano/Desktop/GDIBOT/GDIBOT/get.json",
+		"/Users/eddieruano/Desktop/GDIBOT/GDIBOT/.env",
+		"/Users/eddieruano/Desktop/GDIBOT/GDIBOT/package.json",
+		"/Users/eddieruano/Desktop/GDIBOT/GDIBOT/index.js",
+		"/Users/eddieruano/Desktop/GDIBOT/GDIBOT/bot.js",
+		"/Users/eddieruano/Library/Application Support/Sublime Text 3/Packages/Default/Default (OSX).sublime-keymap",
+		"/Users/eddieruano/Library/Application Support/Sublime Text 3/Packages/User/Default (OSX).sublime-keymap",
+		"/Users/eddieruano/Library/Application Support/Sublime Text 3/Packages/Pretty JSON/Pretty JSON.sublime-settings",
+		"/Users/eddieruano/Desktop/DESI/modRunner.py",
+		"/Users/eddieruano/Desktop/DESI/sentinel.py",
+		"/Users/eddieruano/Desktop/DESI/proxSensor.py",
+		"/Users/eddieruano/Desktop/DESI/RMC.py",
+		"/Users/eddieruano/Library/Application Support/Sublime Text 3/Packages/FileHeader/FileHeader.sublime-settings",
+		"/Users/eddieruano/Library/Application Support/Sublime Text 3/Packages/Anaconda/Anaconda.sublime-settings",
+		"/Users/eddieruano/Desktop/KiteServer/insert.js",
+		"/Users/eddieruano/Desktop/DESI/Sensor Repositories/DESI/sonicFrontEnd.py",
+		"/Users/eddieruano/Desktop/Transfer/Desk/Arduino/RF24/pyRF24/setup.py",
+		"/Users/eddieruano/Desktop/DESI/Sensor Repositories/DESI/simpletest.py",
+		"/Users/eddieruano/Desktop/Transfer/Desk/Arduino/RF24/tests/pingpair_blocking/runtest.py",
+		"/Users/eddieruano/Desktop/Phantom/Vault/CALPOLY/Year 1/CPE101/Lab07/script.py",
+		"/Users/eddieruano/Desktop/OperationCloudMail/CloudMailServer/README.md",
+		"/Users/eddieruano/Desktop/OperationCloudMail/CloudMailServer/CONTRIBUTING.md",
+		"/Users/eddieruano/Desktop/dow"
+	],
+	"find":
+	{
+		"height": 23.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": true,
+		"find_history":
+		[
+			"screen",
+			"stdscr",
+			"updateView",
+			"GPIO.OUT",
+			"GPIO.setup"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": true,
+		"replace_history":
+		[
+			"self.display",
+			"display",
+			"displayRefresh",
+			"GPIO.HIGH",
+			"GPIO.output",
+			"GPIO.setup(self.OUT_START, GPIO.OUT)\n        GPIO.setup(self.OUT_OFF, GPIO.OUT)\n        GPIO.setup(self.OUT_PAUSE, GPIO.OUT)\n        GPIO.setup(self.OUT_ENTER, GPIO.OUT)\n        GPIO.setup(self.OUT_0, GPIO.OUT)\n        GPIO.setup(self.OUT_1, GPIO.OUT)\n        GPIO.setup(self.OUT_2, GPIO.OUT)\n        GPIO.setup(self.OUT_3, GPIO.OUT)\n        GPIO.setup(self.OUT_4, GPIO.OUT)\n        GPIO.setup(self.OUT_5, GPIO.OUT)\n        GPIO.setup(self.OUT_DOWN, GPIO.OUT)\n        GPIO.setup(self.OUT_ALEXA, GPIO.OUT)"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 3,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "MissionControl.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2796,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2253,
+								2385
+							]
+						],
+						"settings":
+						{
+							"c_time":
+							[
+								128,
+								3,
+								99,
+								100,
+								97,
+								116,
+								101,
+								116,
+								105,
+								109,
+								101,
+								10,
+								100,
+								97,
+								116,
+								101,
+								116,
+								105,
+								109,
+								101,
+								10,
+								113,
+								0,
+								67,
+								10,
+								7,
+								225,
+								6,
+								1,
+								11,
+								48,
+								39,
+								0,
+								0,
+								0,
+								113,
+								1,
+								133,
+								113,
+								2,
+								82,
+								113,
+								3,
+								46
+							],
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 701.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "DESI_DRV1.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 6664,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2126,
+								2126
+							]
+						],
+						"settings":
+						{
+							"c_time":
+							[
+								128,
+								3,
+								99,
+								100,
+								97,
+								116,
+								101,
+								116,
+								105,
+								109,
+								101,
+								10,
+								100,
+								97,
+								116,
+								101,
+								116,
+								105,
+								109,
+								101,
+								10,
+								113,
+								0,
+								67,
+								10,
+								7,
+								225,
+								6,
+								2,
+								1,
+								28,
+								52,
+								0,
+								0,
+								0,
+								113,
+								1,
+								133,
+								113,
+								2,
+								82,
+								113,
+								3,
+								46
+							],
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "Dash.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 875,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								701,
+								701
+							]
+						],
+						"settings":
+						{
+							"auto_name": "",
+							"c_time":
+							[
+								128,
+								3,
+								99,
+								100,
+								97,
+								116,
+								101,
+								116,
+								105,
+								109,
+								101,
+								10,
+								100,
+								97,
+								116,
+								101,
+								116,
+								105,
+								109,
+								101,
+								10,
+								113,
+								0,
+								67,
+								10,
+								7,
+								225,
+								6,
+								2,
+								3,
+								49,
+								23,
+								0,
+								0,
+								0,
+								113,
+								1,
+								133,
+								113,
+								2,
+								82,
+								113,
+								3,
+								46
+							],
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/Users/eddieruano/Desktop/KiteMail/KiteMail-Senior-Project-/Podfile",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 410,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								92,
+								92
+							]
+						],
+						"settings":
+						{
+							"c_time":
+							[
+								128,
+								3,
+								99,
+								100,
+								97,
+								116,
+								101,
+								116,
+								105,
+								109,
+								101,
+								10,
+								100,
+								97,
+								116,
+								101,
+								116,
+								105,
+								109,
+								101,
+								10,
+								113,
+								0,
+								67,
+								10,
+								7,
+								225,
+								6,
+								2,
+								5,
+								20,
+								37,
+								0,
+								0,
+								0,
+								113,
+								1,
+								133,
+								113,
+								2,
+								82,
+								113,
+								3,
+								46
+							],
+							"syntax": "Packages/Text/Plain text.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "/Users/eddieruano/Desktop/DESI/RunDMC_Module.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 8260,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2993,
+								3061
+							]
+						],
+						"settings":
+						{
+							"c_time":
+							[
+								128,
+								3,
+								99,
+								100,
+								97,
+								116,
+								101,
+								116,
+								105,
+								109,
+								101,
+								10,
+								100,
+								97,
+								116,
+								101,
+								116,
+								105,
+								109,
+								101,
+								10,
+								113,
+								0,
+								67,
+								10,
+								7,
+								225,
+								6,
+								1,
+								0,
+								48,
+								46,
+								0,
+								0,
+								0,
+								113,
+								1,
+								133,
+								113,
+								2,
+								82,
+								113,
+								3,
+								46
+							],
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 952.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "Adafruit_Python_MPR121/Adafruit_MPR121/MPR121.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 8263,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1,
+								1
+							]
+						],
+						"settings":
+						{
+							"c_time":
+							[
+								128,
+								3,
+								99,
+								100,
+								97,
+								116,
+								101,
+								116,
+								105,
+								109,
+								101,
+								10,
+								100,
+								97,
+								116,
+								101,
+								116,
+								105,
+								109,
+								101,
+								10,
+								113,
+								0,
+								67,
+								10,
+								7,
+								225,
+								6,
+								1,
+								11,
+								48,
+								39,
+								0,
+								0,
+								0,
+								113,
+								1,
+								133,
+								113,
+								2,
+								82,
+								113,
+								3,
+								46
+							],
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 708.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "drivers/HUD.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4327,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								619,
+								694
+							]
+						],
+						"settings":
+						{
+							"c_time":
+							[
+								128,
+								3,
+								99,
+								100,
+								97,
+								116,
+								101,
+								116,
+								105,
+								109,
+								101,
+								10,
+								100,
+								97,
+								116,
+								101,
+								116,
+								105,
+								109,
+								101,
+								10,
+								113,
+								0,
+								67,
+								10,
+								7,
+								225,
+								6,
+								1,
+								12,
+								3,
+								30,
+								0,
+								0,
+								0,
+								113,
+								1,
+								133,
+								113,
+								2,
+								82,
+								113,
+								3,
+								46
+							],
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 23.0
+	},
+	"input":
+	{
+		"height": 51.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 174.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "Sentinel.sublime-project",
+	"replace":
+	{
+		"height": 104.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 222.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
