@@ -2,7 +2,7 @@
 # @Author: Eddie Ruano
 # @Date:   2017-05-01 05:14:54
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-14 12:56:50
+# @Last Modified time: 2017-06-14 13:00:10
 # 
 """
     MissionControl.py is a debugging tool for DESI_Sentinel
@@ -32,10 +32,11 @@ Voyager1 = VoyagerHCSR04.Voyager("Voyager1", DESI.PROX1_TRIG, DESI.PROX1_ECHO)
 Voyager2 = VoyagerHCSR04.Voyager("Voyager2", DESI.PROX2_TRIG, DESI.PROX2_ECHO)
 TouchSense = MPR121.MPR121()
 Sentinel = Sentinel.Sentinel()
-Runner = Runner("Runner1", "~/Logs/Status.txt")
+Runner = Runner("Runner1", "~/logs/Status.txt")
 ################################## PATHS ######################################
 def main():
     # Variables/Flags
+    Runner.writeStartLock()
     flagRailWarning = False
     flagSelectorWarning = False
     flagProximityWarning = False
