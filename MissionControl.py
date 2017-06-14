@@ -2,7 +2,7 @@
 # @Author: Eddie Ruano
 # @Date:   2017-05-01 05:14:54
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-14 13:05:20
+# @Last Modified time: 2017-06-14 13:07:15
 # 
 """
     MissionControl.py is a debugging tool for DESI_Sentinel
@@ -196,6 +196,7 @@ def main():
     except KeyboardInterrupt:
         GPIO.cleanup()
         DESI.DESICleanup()
+        Runner.writeShutdownLock()
         print("Shutdown Mission.")
         #Detector.terminate()
 ### END OF MAIN ###
