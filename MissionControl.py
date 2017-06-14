@@ -2,7 +2,7 @@
 # @Author: Eddie Ruano
 # @Date:   2017-05-01 05:14:54
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-14 13:18:38
+# @Last Modified time: 2017-06-14 13:19:33
 # 
 """
     MissionControl.py is a debugging tool for DESI_Sentinel
@@ -37,7 +37,7 @@ Runner = Runner.Runner("Runner1", "Status.json")
 ################################## PATHS ######################################
 def main():
     # Variables/Flags
-    jdata = open(Status.json)
+    jdata = open("Status.json")
     data = json.load(jdata)
     print(data)
     Runner.writeStartLock()
