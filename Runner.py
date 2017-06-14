@@ -2,7 +2,8 @@
 # @Author: Eddie Ruano
 # @Date:   2017-06-14 12:51:23
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-14 13:24:29
+# @Last Modified time: 2017-06-14 13:36:51
+import os
 import json
 import datetime
 import time
@@ -15,10 +16,12 @@ class Runner(object):
         self.outfile = outfile
         self.speedfile = speedfile
     def writeStartLock(self):
+        file = open('on.dat', 'w+')
         data = {'Status': 'ON'}
         with open(self.outfile, 'w') as outfile:
             json.dump(data, outfile)
     def writeShutdownLock(self):
+        os.remove("on.dat")
         data = {'Status': 'OFF'}
         with open(self.outfile, 'w') as outfile:
             json.dump(data, outfile)
