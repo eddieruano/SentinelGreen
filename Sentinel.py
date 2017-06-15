@@ -2,7 +2,7 @@
 # @Author: Eddie Ruano
 # @Date:   2017-06-01 14:25:28
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-13 20:13:54
+# @Last Modified time: 2017-06-14 19:18:29
 
 import RPi.GPIO as GPIO
 import subprocess
@@ -19,7 +19,7 @@ class Sentinel(object):
         self.CONST_REDUX = 0.1
         self.CONST_ZONE_FIX = 0.0
         self.PROXCOUNT = 50
-        self.CAPCOUNT = 60
+        self.CAPCOUNT = 35
         self.CONST_BOUNCE = 800
         self.CONST_RESCOUNT = 60
         self.CONST_PROX_RETRIES = 50
