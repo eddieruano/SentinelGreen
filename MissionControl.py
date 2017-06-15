@@ -2,7 +2,7 @@
 # @Author: Eddie Ruano
 # @Date:   2017-05-01 05:14:54
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-14 13:31:20
+# @Last Modified time: 2017-06-14 18:19:29
 # 
 """
     MissionControl.py is a debugging tool for DESI_Sentinel
@@ -125,9 +125,12 @@ def main():
                 print("State Indifff")
                 print(speed)
             if (Sentinel.CapLock == True):
+                Runner.writeSpeed(0.0)
                 continue
             if (Sentinel.ProxLock == True):
+                Runner.writeSpeed(0.0)
                 continue
+            Runner.writeSpeed(speed)
             # Set the Speed if the knob doesn't match up
             #if (Sentinel.StateKnob != Sentinel.ActualSpeed):
             #    DESI.DESISend(Sentinel.StateKnob * 1.0)

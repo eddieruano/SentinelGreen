@@ -2,7 +2,7 @@
 # @Author: Eddie Ruano
 # @Date:   2017-06-14 12:51:23
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-14 13:36:51
+# @Last Modified time: 2017-06-14 18:17:09
 import os
 import json
 import datetime
@@ -26,6 +26,6 @@ class Runner(object):
         with open(self.outfile, 'w') as outfile:
             json.dump(data, outfile)
     def writeSpeed(self, speed):
-        data = {'Speed': speed.toString()}
-        with open(self.outfile, 'w') as speedfile:
+        data = {'Speed': str(speed)}
+        with open(self.speedfile, 'w') as speedfile:
             json.dump(data, speedfile)
