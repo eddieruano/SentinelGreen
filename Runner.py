@@ -2,7 +2,7 @@
 # @Author: Eddie Ruano
 # @Date:   2017-06-14 12:51:23
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-14 18:24:31
+# @Last Modified time: 2017-06-14 18:35:48
 import os
 import json
 import datetime
@@ -25,8 +25,10 @@ class Runner(object):
         data = {'Status': 'OFF'}
         with open(self.outfile, 'w') as outfile:
             json.dump(data, outfile)
-    def writeSpeed(self, speed):
+    def writeSpeed(self, speed, desi):
         speed = self._translateToSpeed(speed)
+        if (desi.State_Main == "Pause"):
+            speed = 0.0
         data = {'Speed': str(speed)}
         with open(self.speedfile, 'w') as speedfile:
             json.dump(data, speedfile)
