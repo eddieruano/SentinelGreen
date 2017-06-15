@@ -2,7 +2,7 @@
 # @Author: Eddie Ruano
 # @Date:   2017-06-14 12:51:23
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-14 18:17:09
+# @Last Modified time: 2017-06-14 18:24:31
 import os
 import json
 import datetime
@@ -26,6 +26,20 @@ class Runner(object):
         with open(self.outfile, 'w') as outfile:
             json.dump(data, outfile)
     def writeSpeed(self, speed):
+        speed = self._translateToSpeed(speed)
         data = {'Speed': str(speed)}
         with open(self.speedfile, 'w') as speedfile:
             json.dump(data, speedfile)
+    def _translateToSpeed(self, speed):
+        if speed == "Send00":
+            return 0.0
+        elif speed == "Send01":
+            return 2.0
+        elif speed == "Send02":
+            return 2.5
+        elif speed == "Send03":
+            return 3.0
+        elif speed == "Send04":
+            return 3.5
+        else:
+            return 100.0
