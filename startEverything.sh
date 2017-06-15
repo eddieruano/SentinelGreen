@@ -1,3 +1,3 @@
 #!/bin/bash
 echo "Starting EVERYTHING"
-watch -n 10 runDESI.sh
+watch -n 50 runDESI.sh
