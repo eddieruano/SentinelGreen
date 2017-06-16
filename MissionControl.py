@@ -2,7 +2,7 @@
 # @Author: Eddie Ruano
 # @Date:   2017-05-01 05:14:54
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-16 14:17:25
+# @Last Modified time: 2017-06-16 16:59:05
 # 
 """
     MissionControl.py is a debugging tool for DESI_Sentinel
@@ -14,6 +14,7 @@ import signal
 import sys
 import time
 import json
+import logging
 #
 from math import floor
 # Customs Mods #
@@ -27,6 +28,28 @@ import drivers.MPR121 as MPR121
 import drivers.VoyagerHCSR04 as VoyagerHCSR04
 import Runner as Runner
 #import trigger.snowboydetect as snowboydetect
+# Logging
+    LogLevel = logging.DEBUG        ## Change this later
+    LogLocation = "Logs/DESIRun.txt"
+    #-------S8Proto
+    # Create Instance of Logger
+    Houston = logging.getLogger(__name__)
+    # Setting Logging Level --Change from Debug later
+    Houston.setLevel(level=LogLevel)
+    # Set up Format Protocol --> Type of Msg, Name of Module, Time, PayloadMessage
+    HouForm = logging.Formatter('%(levelname)s:%(name)s:%(asctime)s:%(message)s')
+    # Set up File Handler + Add level + add formatter
+    HouFile = logging.FileHandler(LogLocation)
+    HouFile.setLevel(LogLevel)
+    HouFile.setFormatter(HouForm)
+    # Set up Stream Handler + level + format
+    HouStream = logging.StreamHandler()
+    HouStream.setLevel(LogLevel)
+    HouStream.setFormatter(HouForm)
+    # Add all handlers to instance of Handler
+    Houston.addHandler(HouStream)
+    Houston.addHandler(HouFile)
+    Houston.info("MissionControl Logger has been created.")
 ############################ INITIALIZE CLASSES ###############################
 DESI = DESIConfig.DESI()
 Voyager1 = VoyagerHCSR04.Voyager("Voyager1", DESI.PROX1_TRIG, DESI.PROX1_ECHO)
@@ -36,6 +59,7 @@ Sentinel = Sentinel.Sentinel()
 Runner = Runner.Runner("Runner1", "Status.json", "Speed.json")
 ################################## PATHS ######################################
 def main():
+    global Houston
     # Variables/Flags
     jdata = open("Status.json")
     data = json.load(jdata)
@@ -52,11 +76,11 @@ def main():
     DESI.initProximity(Voyager1, Voyager2)
     try:
         if not TouchSense.begin():  # Init TouchSense Capacitive Sensor Array
-            print("TSense Error")
+            Houston.error("TouchSense failed to Start.")
             sys.exit(1)
     except OSError as e:
         print(e)
-        print("Sensor Error.")
+        Houston.error("TouchSense failed to Start/caused OSError")
         sys.exit(1)
     Sentinel.getStateKnob(DESI)
     Sentinel.setStateKnob()
@@ -67,14 +91,14 @@ def main():
     # Single Start Trigger
     GPIO.add_event_detect(DESI.IN_START, GPIO.FALLING, callback=StartHandler, bouncetime=Sentinel.CONST_BOUNCE)
     try:
-        print("Listening")
+        Houston.info("Listen Try Begin.")
         #Wait for the Start Command
-        print("Waiting for Start")
+        Houston.info("Waiting for start.")
         while not Sentinel.StartDetect:
             Sentinel.getStateKnob(DESI)
             Sentinel.setStateKnob()
         #Wait until the correct Knob State Happens
-        print("Waiting for knob")
+        Houston.info("Waiting for knob")
         print(Sentinel.StateKnob)
         while Sentinel.StateKnob != 0.0:
             # if the counter reaches zero issue warning
@@ -122,7 +146,7 @@ def main():
                 speed = getSpeed()
                 if Sentinel.flagPause == False:
                     DESI.DESISend(speed)
-                print("State Indifff")
+                Houston.debug("StateIdiff")
                 print(speed)
             if (Sentinel.CapLock == True):
                 Runner.writeSpeed(0.0, DESI)
@@ -141,7 +165,7 @@ def main():
             flagRailWarning = checkRailWarning(flagRailWarning)
             # if we aren't touching
             if not Sentinel.ActiveLock and Sentinel.flagPause == False:
-                print("NO CONTACT")
+                Houston.error("NO CONTACT")
                 # If we reach zero on the counter and not in pause
                 if ((Sentinel.CapCountdown == 0) and (Sentinel.CapLock == False)):
                     # save current workout state
@@ -153,7 +177,7 @@ def main():
                     print(DESI.State_Main)
                     # Enable the CapLock
                     Sentinel.CapLock = True
-                    print("CapLocked.")
+                    Houston.info("CapLocked.")
                     # Runs forever until CapLock disabled
                 else:
                     # Else we are not making contact but not end of count
@@ -185,7 +209,7 @@ def main():
                         Sentinel.flagPause = True
                         Sentinel.waitMutexSpeech()
                         DESI.DESISendResponse(DESI.RespondPause)
-                        print("ProxLocked.")
+                        Houston.info("ProxLocked")
                     # Runs forever until CapLock disabled
                 else:
                     # Else we are not making contact but not end of count
@@ -201,15 +225,15 @@ def main():
             #print(Sentinel.ActualSpeed)
             time.sleep(Sentinel.RunningLoopSpeed)
     except KeyboardInterrupt:
-        print("Shutdown Mission By SuperVisor.")
+        Houston.info("Shutdown Mission By SuperVisor.")
     finally: 
         GPIO.cleanup()
         DESI.DESICleanup()
         try:
             Runner.writeShutdownLock()
         except:
-            print("Tried to delete ON.dat but it was gone.")
-        print("Finally Shutdown Mission.")
+            Houston.info("Tried to delete ON.dat but it was gone.")
+        Houston.info("Finally Shutdown Mission.")
         #Detector.terminate()
 ### END OF MAIN ###
 """Helper Functions"""
@@ -241,14 +265,15 @@ def sanitizeDistance(voy, inDist):
         inDist = Voyager1.get_distance()
     return inDist
 def StartHandler(channel):
+    global Houston
     if (Sentinel.StateKnob == 0.0) and DESI.State_Main == "Pause":
         DESI.DESISend("Shutdown")
         Sentinel.flagShut = True
         GPIO.cleanup()
-        print("Shutdown")
+        Houston.info("StartHandler: Shutdown")
         return
     elif Sentinel.StartDetect != True:
-        print("Starting")
+        Houston.info("StartHandler: Startup")
         Sentinel.StartDetect = True
         DESI.DESISend("Start")
 
@@ -271,7 +296,8 @@ def getSpeed():
     else:
         return "Send00"
 def PauseHandler(channel):
-    print("pause")
+    global Houston
+    Houston.info("PauseHandler: Pause Interrupt")
     DESI.DESISend("Pause")
     Sentinel.flagPause = not Sentinel.flagPause
     if Sentinel.CapLock == True:
