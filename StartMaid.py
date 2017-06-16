@@ -2,9 +2,11 @@
 # @Author: Eddie Ruano
 # @Date:   2017-06-16 12:57:01
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-16 13:13:38
+# @Last Modified time: 2017-06-16 13:42:17
 import os, os.path
 import logging
+import sys
+import time
 from pathlib import Path
 
 def main():
@@ -35,6 +37,8 @@ def main():
     if runLock.is_file():
         Houston.info("ON.dat was found. Removing and resetting JSONs.")
         os.remove("ON.dat")
+    time.sleep(3)
+    sys.exit(0)
 
 if __name__ == "__main__":
     # Create Controller Loop
