@@ -2,7 +2,7 @@
 # @Author: Eddie Ruano
 # @Date:   2017-05-01 05:14:54
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-16 14:08:36
+# @Last Modified time: 2017-06-16 14:17:25
 # 
 """
     MissionControl.py is a debugging tool for DESI_Sentinel
@@ -201,14 +201,14 @@ def main():
             #print(Sentinel.ActualSpeed)
             time.sleep(Sentinel.RunningLoopSpeed)
     except KeyboardInterrupt:
-        GPIO.cleanup()
-        DESI.DESICleanup()
-        Runner.writeShutdownLock()
-        print("Shutdown Mission.")
+        print("Shutdown Mission By SuperVisor.")
     finally: 
         GPIO.cleanup()
         DESI.DESICleanup()
-        Runner.writeShutdownLock()
+        try:
+            Runner.writeShutdownLock()
+        except:
+            print("Tried to delete ON.dat but it was gone.")
         print("Finally Shutdown Mission.")
         #Detector.terminate()
 ### END OF MAIN ###
