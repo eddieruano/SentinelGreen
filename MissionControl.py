@@ -2,7 +2,7 @@
 # @Author: Eddie Ruano
 # @Date:   2017-05-01 05:14:54
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-16 16:59:05
+# @Last Modified time: 2017-06-16 17:08:58
 # 
 """
     MissionControl.py is a debugging tool for DESI_Sentinel
@@ -29,27 +29,27 @@ import drivers.VoyagerHCSR04 as VoyagerHCSR04
 import Runner as Runner
 #import trigger.snowboydetect as snowboydetect
 # Logging
-    LogLevel = logging.DEBUG        ## Change this later
-    LogLocation = "Logs/DESIRun.txt"
-    #-------S8Proto
-    # Create Instance of Logger
-    Houston = logging.getLogger(__name__)
-    # Setting Logging Level --Change from Debug later
-    Houston.setLevel(level=LogLevel)
-    # Set up Format Protocol --> Type of Msg, Name of Module, Time, PayloadMessage
-    HouForm = logging.Formatter('%(levelname)s:%(name)s:%(asctime)s:%(message)s')
-    # Set up File Handler + Add level + add formatter
-    HouFile = logging.FileHandler(LogLocation)
-    HouFile.setLevel(LogLevel)
-    HouFile.setFormatter(HouForm)
-    # Set up Stream Handler + level + format
-    HouStream = logging.StreamHandler()
-    HouStream.setLevel(LogLevel)
-    HouStream.setFormatter(HouForm)
-    # Add all handlers to instance of Handler
-    Houston.addHandler(HouStream)
-    Houston.addHandler(HouFile)
-    Houston.info("MissionControl Logger has been created.")
+LogLevel = logging.DEBUG        ## Change this later
+LogLocation = "Logs/DESIRun.txt"
+#-------S8Proto
+# Create Instance of Logger
+Houston = logging.getLogger(__name__)
+# Setting Logging Level --Change from Debug later
+Houston.setLevel(level=LogLevel)
+# Set up Format Protocol --> Type of Msg, Name of Module, Time, PayloadMessage
+HouForm = logging.Formatter('%(levelname)s:%(name)s:%(asctime)s:%(message)s')
+# Set up File Handler + Add level + add formatter
+HouFile = logging.FileHandler(LogLocation)
+HouFile.setLevel(LogLevel)
+HouFile.setFormatter(HouForm)
+# Set up Stream Handler + level + format
+HouStream = logging.StreamHandler()
+HouStream.setLevel(LogLevel)
+HouStream.setFormatter(HouForm)
+# Add all handlers to instance of Handler
+Houston.addHandler(HouStream)
+Houston.addHandler(HouFile)
+Houston.info("MissionControl Logger has been created.")
 ############################ INITIALIZE CLASSES ###############################
 DESI = DESIConfig.DESI()
 Voyager1 = VoyagerHCSR04.Voyager("Voyager1", DESI.PROX1_TRIG, DESI.PROX1_ECHO)
