@@ -2,7 +2,7 @@
 # @Author: Eddie Ruano
 # @Date:   2017-06-01 07:23:39
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-09 09:42:37
+# @Last Modified time: 2017-06-19 11:59:15
 
 
 import RPi.GPIO as GPIO
@@ -11,6 +11,28 @@ import pyaudio
 import wave
 import subprocess
 class DESI(object):
+    # Logging
+    LogLevel = logging.DEBUG        ## Change this later
+    LogLocation = "Logs/DESIConfig.txt"
+    #-------S8Proto
+    # Create Instance of Logger
+    Houston = logging.getLogger(__name__)
+    # Setting Logging Level --Change from Debug later
+    Houston.setLevel(level=LogLevel)
+    # Set up Format Protocol --> Type of Msg, Name of Module, Time, PayloadMessage
+    HouForm = logging.Formatter('%(levelname)s:%(name)s:%(asctime)s:%(message)s')
+    # Set up File Handler + Add level + add formatter
+    HouFile = logging.FileHandler(LogLocation)
+    HouFile.setLevel(LogLevel)
+    HouFile.setFormatter(HouForm)
+    # Set up Stream Handler + level + format
+    HouStream = logging.StreamHandler()
+    HouStream.setLevel(LogLevel)
+    HouStream.setFormatter(HouForm)
+    # Add all handlers to instance of Handler
+    Houston.addHandler(HouStream)
+    Houston.addHandler(HouFile)
+    Houston.info("DesiConfig Logger has been created.")
     """Representation of a DESI Entity"""
     # Control Box Pins
     SPEED0 = 0.0
@@ -84,14 +106,14 @@ class DESI(object):
         GPIO.setup(self.IN_SPEED2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.setup(self.IN_SPEED3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.setup(self.IN_SPEED4, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        print ("Buttons Complete.")
+        self.Houston.info("Buttons Complete.")
     def initProximity(self, sensorV1, sensorV2):
         # Set up the correct In/Out Scheme for send/receive
         GPIO.setup(sensorV1.trigger_pin, GPIO.OUT)
         GPIO.setup(sensorV1.echo_pin, GPIO.IN)
         GPIO.setup(sensorV2.trigger_pin, GPIO.OUT)
         GPIO.setup(sensorV2.echo_pin, GPIO.IN)
-        print ("Proximity Sensor Set.")
+        self.Houston.info("Proximity Sensor Set.")
     def initRelays(self):
         # Set up the correct In/Out Scheme for send/receive
         GPIO.setup(self.OUT_START, GPIO.OUT)
@@ -118,58 +140,57 @@ class DESI(object):
         GPIO.output(self.OUT_5, GPIO.HIGH)
         GPIO.output(self.OUT_DOWN, GPIO.HIGH)
         #GPIO.output(self.OUT_ALEXA, GPIO.HIGH)
-        print ("Relay Array Set.")
+        self.Houston.info("Relay Array Set.")
     
     def DESISend(self, command):
         if command == "Start":
             self.performStart()
-            print("SendStart")
+            self.Houston.info("SendStart")
         elif command == "Pause":
             self.performPause()
             #self.DESISendResponse(self.RespondPaused)
-            print("SendPause")
+            self.Houston.info("SendPause")
         elif command == "Shutdown":
             self.DESICleanupAudio()
             #self.DESISendResponse(self.RespondShutdown)
             self.performShutdown()
-            print("Shutdown")
+            self.Houston.info("Shutdown")
         elif command == "Enter":
             self.performEnter()
-            print("Enter")
+            self.Houston.info("Enter")
         elif command == "Send00":
             self.DESICleanupAudio()
             self.DESISendResponse(self.RespondSpeed00)
             self.performS0()
-            print("Send00")
+            self.Houston.info("Send00")
         elif command == "Send01":
             self.DESICleanupAudio()
             self.DESISendResponse(self.RespondSpeed01)
             self.performS1()
-            print("Send01")
+            self.Houston.info("Send01")
         elif command == "Send02":
             self.DESICleanupAudio()
             self.DESISendResponse(self.RespondSpeed02)
             self.performS2()
-            print("Send02")
+            self.Houston.info("Send02")
         elif command == "Send03":
             self.DESICleanupAudio()
             self.DESISendResponse(self.RespondSpeed03)
             self.performS3()
-            print("Send03")
+            self.Houston.info("Send03")
         elif command == "Send04":
             self.DESICleanupAudio()
             self.DESISendResponse(self.RespondSpeed04)
             self.performS4()
-            print("Send04")
+            self.Houston.info("Send04")
         elif command == "SendDown":
             self.performDown()
-            print("SendDown")
+            self.Houston.info("SendDown")
         elif command == "SendAlexa":
             self.performAlexa()
-            print("Alexa")
+            self.Houston.info("Alexa")
         else:
-            print("Error")
-            print(command)
+            self.Houston.error("Error with Command Sent to ")
     def DESISendResponse(self, fname):
         """ 
             Callback plays a wave file.

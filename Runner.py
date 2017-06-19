@@ -2,7 +2,7 @@
 # @Author: Eddie Ruano
 # @Date:   2017-06-14 12:51:23
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-16 13:43:46
+# @Last Modified time: 2017-06-19 06:34:45
 import os
 import json
 import datetime
@@ -11,10 +11,11 @@ import string
 
 class Runner(object):
 
-    def __init__(self, name, outfile, speedfile):
+    def __init__(self, name, outfile, speedfile, pidfile):
         self.name = name
         self.outfile = outfile
         self.speedfile = speedfile
+        self.pidfile = pidfile
     def writeStartLock(self):
         file = open('ON.dat', 'w+')
         data = {'Status': 'ON'}
@@ -25,6 +26,10 @@ class Runner(object):
         data = {'Status': 'OFF'}
         with open(self.outfile, 'w') as outfile:
             json.dump(data, outfile)
+    def writePid(self, pid):
+        data = {'Pid': str(pid)}
+        with open(self.pidfile, 'w') as pidfile:
+            json.dump(data, pidfile)
     def writeSpeed(self, speed, desi):
         speed = self._translateToSpeed(speed)
         if (desi.State_Main == "Pause"):
