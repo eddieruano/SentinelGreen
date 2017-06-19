@@ -2,7 +2,7 @@
 # @Author: Eddie Ruano
 # @Date:   2017-05-01 05:14:54
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-18 18:26:30
+# @Last Modified time: 2017-06-18 18:33:02
 # 
 """
     MissionControl.py is a debugging tool for DESI_Sentinel
@@ -272,12 +272,18 @@ def StartHandler(channel):
         DESI.DESISend("Shutdown")
         Sentinel.flagShut = True
         GPIO.cleanup()
+        DESI.DESICleanup()
         Houston.info("StartHandler: Shutdown")
+        try:
+            Runner.writeShutdownLock()
+        except:
+            Houston.info("Tried to delete ON.dat but it was gone.")
+        sys.exit(0)
     elif Sentinel.StartDetect != True:
         Houston.info("StartHandler: Startup")
         Sentinel.StartDetect = True
         DESI.DESISend("Start")
-
+    else:
 def getSpeed():
     if Sentinel.StateKnob == 0.0:
         Sentinel.setSpeed(0.0)
