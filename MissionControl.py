@@ -2,7 +2,7 @@
 # @Author: Eddie Ruano
 # @Date:   2017-05-01 05:14:54
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-16 17:28:28
+# @Last Modified time: 2017-06-18 18:21:43
 # 
 """
     MissionControl.py is a debugging tool for DESI_Sentinel
@@ -124,7 +124,7 @@ def main():
 
         while True:
             if Sentinel.flagShut == True:
-                continue
+                break
             localKnobState = Sentinel.StateKnob
             # Update the ActiveLock
             Sentinel.updateActiveLock(TouchSense)
@@ -272,7 +272,6 @@ def StartHandler(channel):
         Sentinel.flagShut = True
         GPIO.cleanup()
         Houston.info("StartHandler: Shutdown")
-        return
     elif Sentinel.StartDetect != True:
         Houston.info("StartHandler: Startup")
         Sentinel.StartDetect = True
