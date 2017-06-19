@@ -2,20 +2,21 @@
 # @Author: Eddie Ruano
 # @Date:   2017-05-01 05:14:54
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-19 06:34:59
+# @Last Modified time: 2017-06-19 13:08:58
 # 
 """
     MissionControl.py is a debugging tool for DESI_Sentinel
 """
 ################################## IMPORTS ###################################
+import json
 import logging
 import os
 import os.path
 import signal
+import subprocess
 import sys
 import time
-import json
-import logging
+
 from subprocess import check_output
 #
 from math import floor
@@ -26,9 +27,9 @@ import Sentinel as Sentinel
 ################################### PATHS #####################################
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import DESIConfig as DESIConfig
+import Runner as Runner
 import drivers.MPR121 as MPR121
 import drivers.VoyagerHCSR04 as VoyagerHCSR04
-import Runner as Runner
 #import trigger.snowboydetect as snowboydetect
 # Logging
 LogLevel = logging.DEBUG        ## Change this later
@@ -272,6 +273,9 @@ def sanitizeDistance(voy, inDist):
     return inDist
 def StartHandler(channel):
     global Houston
+    global Runner
+    global Sentinel
+    global DESI
     if (Sentinel.StateKnob == 0.0) and DESI.State_Main == "Pause":
         DESI.DESISend("Shutdown")
         Sentinel.flagShut = True
@@ -281,6 +285,7 @@ def StartHandler(channel):
         try:
             Runner.writeShutdownLock()
         except:
+            restart()
             Houston.info("Tried to delete ON.dat but it was gone.")
         sys.exit(0)
     elif Sentinel.StartDetect != True:
@@ -290,6 +295,7 @@ def StartHandler(channel):
     else:
         pass
 def getSpeed():
+    global Sentinel
     if Sentinel.StateKnob == 0.0:
         Sentinel.setSpeed(0.0)
         return "Send00"
@@ -309,6 +315,8 @@ def getSpeed():
         return "Send00"
 def PauseHandler(channel):
     global Houston
+    global Sentinel
+    global DESI
     Houston.info("PauseHandler: Pause Interrupt")
     DESI.DESISend("Pause")
     Sentinel.flagPause = not Sentinel.flagPause
@@ -323,6 +331,12 @@ def checkRailWarning(flag):
             DESI.DESISendResponse(DESI.RespondRails)
         return True
     return False
+def restart():
+    global Houston
+    command = "/usr/bin/sudo /sbin/shutdown -r now"
+    process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+    output = process.communicate()[0]
+    Houston.info(output)
 ### MAIN CALL ###
 if __name__ == "__main__":
     main()
