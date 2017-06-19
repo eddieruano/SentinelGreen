@@ -2,7 +2,7 @@
 # @Author: Eddie Ruano
 # @Date:   2017-05-01 05:14:54
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-18 18:21:43
+# @Last Modified time: 2017-06-18 18:26:30
 # 
 """
     MissionControl.py is a debugging tool for DESI_Sentinel
@@ -63,7 +63,7 @@ def main():
     # Variables/Flags
     jdata = open("Status.json")
     data = json.load(jdata)
-    print(data)
+    Houston.info(data)
     Runner.writeStartLock()
     flagRailWarning = False
     flagSelectorWarning = False
@@ -124,6 +124,7 @@ def main():
 
         while True:
             if Sentinel.flagShut == True:
+                Houston.info("Shutdown. Loop.")
                 break
             localKnobState = Sentinel.StateKnob
             # Update the ActiveLock
