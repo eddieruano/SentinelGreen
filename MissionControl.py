@@ -2,7 +2,7 @@
 # @Author: Eddie Ruano
 # @Date:   2017-05-01 05:14:54
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-18 18:33:02
+# @Last Modified time: 2017-06-18 18:34:04
 # 
 """
     MissionControl.py is a debugging tool for DESI_Sentinel
@@ -284,6 +284,7 @@ def StartHandler(channel):
         Sentinel.StartDetect = True
         DESI.DESISend("Start")
     else:
+        pass
 def getSpeed():
     if Sentinel.StateKnob == 0.0:
         Sentinel.setSpeed(0.0)
