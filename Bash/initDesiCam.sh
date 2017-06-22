@@ -16,4 +16,4 @@ DESI_CamLogN=/home/pi/Desktop/SentinelGreen/Logs/DesiCamN.txt
 echo "Starting NGROK DESICAM at $current_time" >> $DESI_CamLog
 cd /home/pi/NGrokServer/
 sleep 3
-sudo ./ngrok http -subdomain=desicam 80 > $DESI_CamLogN
+./ngrok http -subdomain=desicam 80 > $DESI_CamLogN
