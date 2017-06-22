@@ -13,7 +13,7 @@
 current_time="$(date +'%c')"
 DESI_CamLog=/home/pi/Desktop/SentinelGreen/Logs/DesiCam.txt
 DESI_CamLogN=/home/pi/Desktop/SentinelGreen/Logs/DesiCamN.txt
-echo "Starting NGROK DESICAM at $current_time" >> $(DESI_CamLog)
+echo "Starting NGROK DESICAM at $current_time" >> $DESI_CamLog
 cd /home/pi/NGrokServer/
 sleep 3
-sudo ./ngrok http -subdomain=desicam 80 > $(DESI_CamLogN)
+sudo ./ngrok http -subdomain=desicam 80 > $DESI_CamLogN
