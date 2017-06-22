@@ -2,7 +2,7 @@
 # @Author: Eddie Ruano
 # @Date:   2017-05-01 05:14:54
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-19 14:30:23
+# @Last Modified time: 2017-06-21 23:16:14
 # 
 """
     MissionControl.py is a debugging tool for DESI_Sentinel
@@ -23,6 +23,7 @@ from math import floor
 # Customs Mods #
 import RPi.GPIO as GPIO
 import Sentinel as Sentinel
+import Pusher as Pusher
 # Local Modules #
 ################################### PATHS #####################################
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -60,6 +61,7 @@ Voyager2 = VoyagerHCSR04.Voyager("Voyager2", DESI.PROX2_TRIG, DESI.PROX2_ECHO)
 TouchSense = MPR121.MPR121()
 Sentinel = Sentinel.Sentinel()
 Runner = Runner.Runner("Runner1", "Status.json", "Speed.json", "Pid.json")
+Pusher = Pusher.Pusher("MainPusher")
 ################################## PATHS ######################################
 def main():
     global Houston
@@ -79,6 +81,9 @@ def main():
     DESI.initDESI()
     # Initialize Voyager Proximity Sensors
     DESI.initProximity(Voyager1, Voyager2)
+    # Test the function:    
+    thisTime = time.time()
+    Pusher.pushMessage("DESI Alert Service", "Workout has begun at " + thisTime)
     try:
         if not TouchSense.begin():  # Init TouchSense Capacitive Sensor Array
             Houston.error("TouchSense failed to Start.")
