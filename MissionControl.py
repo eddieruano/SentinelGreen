@@ -2,7 +2,7 @@
 # @Author: Eddie Ruano
 # @Date:   2017-05-01 05:14:54
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-21 23:16:14
+# @Last Modified time: 2017-06-21 23:18:26
 # 
 """
     MissionControl.py is a debugging tool for DESI_Sentinel
@@ -16,7 +16,6 @@ import signal
 import subprocess
 import sys
 import time
-
 from subprocess import check_output
 #
 from math import floor
@@ -83,7 +82,7 @@ def main():
     DESI.initProximity(Voyager1, Voyager2)
     # Test the function:    
     thisTime = time.time()
-    Pusher.pushMessage("DESI Alert Service", "Workout has begun at " + thisTime)
+    Pusher.pushMessage("DESI Alert Service", "Workout has begun at " + str(thisTime))
     try:
         if not TouchSense.begin():  # Init TouchSense Capacitive Sensor Array
             Houston.error("TouchSense failed to Start.")
