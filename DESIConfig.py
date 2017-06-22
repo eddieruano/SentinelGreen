@@ -2,13 +2,14 @@
 # @Author: Eddie Ruano
 # @Date:   2017-06-01 07:23:39
 # @Last Modified by:   Eddie Ruano
-# @Last Modified time: 2017-06-19 14:29:06
+# @Last Modified time: 2017-06-21 23:17:36
 
 
 import RPi.GPIO as GPIO
 import time
 import pyaudio
 import wave
+import logging
 import subprocess
 class DESI(object):
     # Logging
